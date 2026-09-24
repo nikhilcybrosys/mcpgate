@@ -1,0 +1,24 @@
+# Example: pin once in-repo, verify tools/list artifacts on every PR.
+name: MCPGate verify
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      # Replace paths with your captured tools/list JSON and committed pins.
+      - name: Verify tools against pins
+        run: |
+          node dist/bin.js verify \
+            --pins .mcpgate/pins.json \
+            --from fixtures/deadbugz/benign-tools.json
